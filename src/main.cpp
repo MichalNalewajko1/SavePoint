@@ -37,30 +37,30 @@ int main()
 
     filesystem::directory_iterator current(sourcePath, errorCode);
 
-if (errorCode)
-{
-    cout << "Nie mozna otworzyc folderu: "
-         << errorCode.message() << "\n";
-    return 1;
-}
-
-filesystem::directory_iterator end;
-
-cout << "Zawartosc folderu:\n";
-
-while (current != end)
-{
-    cout << current->path().filename().string() << "\n";
-
-    current.increment(errorCode);
-
     if (errorCode)
     {
-        cout << "Blad podczas przegladania folderu: "
+        cout << "Nie mozna otworzyc folderu: "
              << errorCode.message() << "\n";
         return 1;
     }
-}
+
+    filesystem::directory_iterator end;
+
+    cout << "Zawartosc folderu:\n";
+
+    while (current != end)
+    {
+        cout << current->path().filename().string() << "\n";
+
+        current.increment(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Blad podczas przegladania folderu: "
+                 << errorCode.message() << "\n";
+            return 1;
+        }
+    }
 
     return 0;
 }
