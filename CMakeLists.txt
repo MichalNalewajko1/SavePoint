@@ -1,0 +1,4 @@
+cmake_minimum_required(VERSION 3.20)
+project(SavePoint LANGUAGES CXX)
+add_executable(SavePoint src/main.cpp)
+target_compile_features(SavePoint PRIVATE cxx_std_20)

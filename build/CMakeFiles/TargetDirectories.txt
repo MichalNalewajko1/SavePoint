@@ -1,0 +1,3 @@
+C:/Users/Michal/Desktop/SavePoint/build/CMakeFiles/SavePoint.dir
+C:/Users/Michal/Desktop/SavePoint/build/CMakeFiles/edit_cache.dir
+C:/Users/Michal/Desktop/SavePoint/build/CMakeFiles/rebuild_cache.dir
