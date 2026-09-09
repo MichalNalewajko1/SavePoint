@@ -36,7 +36,7 @@ int main()
 
     cout << "Folder istnieje: " << folderPath << "\n";
 
-    filesystem::directory_iterator current(sourcePath, errorCode);
+    filesystem::recursive_directory_iterator current(sourcePath, errorCode);
 
     if (errorCode)
     {
@@ -45,9 +45,12 @@ int main()
         return 1;
     }
 
-    filesystem::directory_iterator end;
+    filesystem::recursive_directory_iterator end;
 
     cout << "Zawartosc folderu:\n";
+
+    uintmax_t fileCount = 0;
+    uintmax_t totalSize = 0;
 
     while (current != end)
     {
@@ -75,6 +78,9 @@ int main()
                 return 1;
             }
 
+            ++fileCount;
+            totalSize += fileSize;
+
             cout << "[PLIK, " << fileSize << " B] ";
         }
         else
@@ -82,8 +88,7 @@ int main()
             cout << "[INNY] ";
         }
 
-        cout << current->path().filename().string() << "\n";
-
+        cout << current->path().string() << "\n";
         current.increment(errorCode);
 
         if (errorCode)
@@ -93,6 +98,10 @@ int main()
             return 1;
         }
     }
+
+    cout << "\nPodsumowanie:\n";
+    cout << "Liczba plikow: " << fileCount << "\n";
+    cout << "Laczny rozmiar plikow: " << totalSize << " B\n";
 
     return 0;
 }
