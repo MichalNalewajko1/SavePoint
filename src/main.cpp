@@ -2,6 +2,7 @@
 #include <string>
 #include <filesystem>
 #include <system_error>
+#include <cstdint>
 
 using namespace std;
 
@@ -50,6 +51,37 @@ int main()
 
     while (current != end)
     {
+        filesystem::file_status entryStatus = current->status(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna odczytac informacji o elemencie: "
+                 << errorCode.message() << "\n";
+            return 1;
+        }
+
+        if (filesystem::is_directory(entryStatus))
+        {
+            cout << "[FOLDER] ";
+        }
+        else if (filesystem::is_regular_file(entryStatus))
+        {
+            uintmax_t fileSize = current->file_size(errorCode);
+
+            if (errorCode)
+            {
+                cout << "Nie mozna odczytac rozmiaru pliku: "
+                     << errorCode.message() << "\n";
+                return 1;
+            }
+
+            cout << "[PLIK, " << fileSize << " B] ";
+        }
+        else
+        {
+            cout << "[INNY] ";
+        }
+
         cout << current->path().filename().string() << "\n";
 
         current.increment(errorCode);
