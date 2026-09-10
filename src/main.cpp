@@ -88,7 +88,9 @@ int main()
             cout << "[INNY] ";
         }
 
-        cout << current->path().string() << "\n";
+        filesystem::path relativePath = current->path().lexically_relative(sourcePath);
+
+        cout << relativePath.string() << "\n";
         current.increment(errorCode);
 
         if (errorCode)
