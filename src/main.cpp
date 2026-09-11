@@ -65,7 +65,16 @@ int main()
 
         if (filesystem::is_directory(entryStatus))
         {
-            cout << "[FOLDER] ";
+            string folderName = current->path().filename().string();
+            if (folderName == ".git" || folderName == "build")
+            {
+                current.disable_recursion_pending();
+                cout << "[POMINIETY FOLDER] ";
+            }
+            else
+            {
+                cout << "[FOLDER] ";
+            }
         }
         else if (filesystem::is_regular_file(entryStatus))
         {
