@@ -6,6 +6,18 @@
 
 using namespace std;
 
+struct ScanSummary
+{
+    uintmax_t fileCount = 0;
+    uintmax_t totalSize = 0;
+};
+
+bool shouldSkipDirectory(const filesystem::path& directoryPath)
+{
+    string folderName = directoryPath.filename().string();
+    return (folderName == ".git" || folderName == "build");
+}
+
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
@@ -49,8 +61,7 @@ int main()
 
     cout << "Zawartosc folderu:\n";
 
-    uintmax_t fileCount = 0;
-    uintmax_t totalSize = 0;
+    ScanSummary summary;
 
     while (current != end)
     {
@@ -65,8 +76,7 @@ int main()
 
         if (filesystem::is_directory(entryStatus))
         {
-            string folderName = current->path().filename().string();
-            if (folderName == ".git" || folderName == "build")
+            if (shouldSkipDirectory(current->path()))
             {
                 current.disable_recursion_pending();
                 cout << "[POMINIETY FOLDER] ";
@@ -87,8 +97,8 @@ int main()
                 return 1;
             }
 
-            ++fileCount;
-            totalSize += fileSize;
+            ++summary.fileCount;
+            summary.totalSize += fileSize;
 
             cout << "[PLIK, " << fileSize << " B] ";
         }
@@ -111,8 +121,8 @@ int main()
     }
 
     cout << "\nPodsumowanie:\n";
-    cout << "Liczba plikow: " << fileCount << "\n";
-    cout << "Laczny rozmiar plikow: " << totalSize << " B\n";
+    cout << "Liczba plikow: " << summary.fileCount << "\n";
+    cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
 
     return 0;
 }
