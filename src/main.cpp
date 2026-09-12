@@ -3,19 +3,95 @@
 #include <filesystem>
 #include <system_error>
 #include <cstdint>
+#include <vector>
 
 using namespace std;
 
 struct ScanSummary
 {
-    uintmax_t fileCount = 0;
+    vector<filesystem::path> files;
     uintmax_t totalSize = 0;
 };
 
-bool shouldSkipDirectory(const filesystem::path& directoryPath)
+bool shouldSkipDirectory(const filesystem::path &directoryPath)
 {
     string folderName = directoryPath.filename().string();
     return (folderName == ".git" || folderName == "build");
+}
+
+ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorCode)
+{
+    ScanSummary summary;
+
+    filesystem::recursive_directory_iterator current(sourcePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna otworzyc folderu: "
+             << errorCode.message() << "\n";
+        return summary;
+    }
+
+    filesystem::recursive_directory_iterator end;
+
+    cout << "Zawartosc folderu:\n";
+    while (current != end)
+    {
+        filesystem::file_status entryStatus = current->status(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna odczytac informacji o elemencie: "
+                 << errorCode.message() << "\n";
+            return summary;
+        }
+        filesystem::path relativePath = current->path().lexically_relative(sourcePath);
+
+        if (filesystem::is_directory(entryStatus))
+        {
+            if (shouldSkipDirectory(current->path()))
+            {
+                current.disable_recursion_pending();
+                cout << "[POMINIETY FOLDER] ";
+            }
+            else
+            {
+                cout << "[FOLDER] ";
+            }
+        }
+        else if (filesystem::is_regular_file(entryStatus))
+        {
+            uintmax_t fileSize = current->file_size(errorCode);
+
+            if (errorCode)
+            {
+                cout << "Nie mozna odczytac rozmiaru pliku: "
+                     << errorCode.message() << "\n";
+                return summary;
+            }
+
+            summary.files.push_back(relativePath);
+            summary.totalSize += fileSize;
+
+            cout << "[PLIK, " << fileSize << " B] ";
+        }
+        else
+        {
+            cout << "[INNY] ";
+        }
+
+        cout << relativePath.string() << "\n";
+        current.increment(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Blad podczas przegladania folderu: "
+                 << errorCode.message() << "\n";
+            return summary;
+        }
+    }
+
+    return summary;
 }
 
 int main()
@@ -48,81 +124,31 @@ int main()
 
     cout << "Folder istnieje: " << folderPath << "\n";
 
-    filesystem::recursive_directory_iterator current(sourcePath, errorCode);
+    ScanSummary summary = scanDirectory(sourcePath, errorCode);
 
     if (errorCode)
     {
-        cout << "Nie mozna otworzyc folderu: "
-             << errorCode.message() << "\n";
         return 1;
     }
 
-    filesystem::recursive_directory_iterator end;
-
-    cout << "Zawartosc folderu:\n";
-
-    ScanSummary summary;
-
-    while (current != end)
-    {
-        filesystem::file_status entryStatus = current->status(errorCode);
-
-        if (errorCode)
-        {
-            cout << "Nie mozna odczytac informacji o elemencie: "
-                 << errorCode.message() << "\n";
-            return 1;
-        }
-
-        if (filesystem::is_directory(entryStatus))
-        {
-            if (shouldSkipDirectory(current->path()))
-            {
-                current.disable_recursion_pending();
-                cout << "[POMINIETY FOLDER] ";
-            }
-            else
-            {
-                cout << "[FOLDER] ";
-            }
-        }
-        else if (filesystem::is_regular_file(entryStatus))
-        {
-            uintmax_t fileSize = current->file_size(errorCode);
-
-            if (errorCode)
-            {
-                cout << "Nie mozna odczytac rozmiaru pliku: "
-                     << errorCode.message() << "\n";
-                return 1;
-            }
-
-            ++summary.fileCount;
-            summary.totalSize += fileSize;
-
-            cout << "[PLIK, " << fileSize << " B] ";
-        }
-        else
-        {
-            cout << "[INNY] ";
-        }
-
-        filesystem::path relativePath = current->path().lexically_relative(sourcePath);
-
-        cout << relativePath.string() << "\n";
-        current.increment(errorCode);
-
-        if (errorCode)
-        {
-            cout << "Blad podczas przegladania folderu: "
-                 << errorCode.message() << "\n";
-            return 1;
-        }
-    }
-
     cout << "\nPodsumowanie:\n";
-    cout << "Liczba plikow: " << summary.fileCount << "\n";
+    cout << "Liczba plikow: " << summary.files.size() << "\n";
     cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
+    string backupFolderPath;
+    
+    cout << "Podaj sciezke do folderu kopii zapasowej: ";
+    getline(cin, backupFolderPath);
+
+    filesystem::path backupPath(backupFolderPath);
+
+    cout<<"\nPlan kopiowania:\n";
+    for (const filesystem::path &filePath : summary.files)
+    {
+        filesystem::path sourceFilePath = sourcePath / filePath;
+        filesystem::path destinationFilePath = backupPath / filePath;
+        cout<<"Zrodlo: "<<sourceFilePath.string()<<"\n";
+        cout<<"Cel: "<<destinationFilePath.string()<<"\n";
+    }
 
     return 0;
 }
