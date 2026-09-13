@@ -140,6 +140,19 @@ int main()
     getline(cin, backupFolderPath);
 
     filesystem::path backupPath(backupFolderPath);
+    bool created = filesystem::create_directories(backupPath, errorCode);
+
+    if(errorCode){
+        cout << "Nie mozna utworzyc folderu kopii zapasowej: "
+             << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if(created){
+        cout << "Folder kopii zapasowej zostal utworzony: " << backupFolderPath << "\n";
+    } else {
+        cout << "Folder kopii zapasowej juz istnieje: " << backupFolderPath << "\n";
+    }
 
     cout<<"\nPlan kopiowania:\n";
     for (const filesystem::path &filePath : summary.files)
