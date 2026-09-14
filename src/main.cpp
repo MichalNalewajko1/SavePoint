@@ -154,11 +154,23 @@ int main()
         cout << "Folder kopii zapasowej juz istnieje: " << backupFolderPath << "\n";
     }
 
-    cout<<"\nPlan kopiowania:\n";
+    cout<<"\nkopiowanie plikoe:\n";
     for (const filesystem::path &filePath : summary.files)
     {
         filesystem::path sourceFilePath = sourcePath / filePath;
         filesystem::path destinationFilePath = backupPath / filePath;
+        filesystem::path destinationDirectory = destinationFilePath.parent_path();
+        filesystem::create_directories(destinationDirectory, errorCode);
+        if(errorCode){
+            cout << "Nie mozna utworzyc podfolderu kopii:" << errorCode.message() << "\n";
+            return 1;
+        }
+        filesystem::copy_file(sourceFilePath, destinationFilePath, errorCode);
+        if(errorCode){
+            cout << "Nie mozna skopiowac pliku:" <<filePath.string() << " - " << errorCode.message() << "\n";
+            return 1;
+        }
+        cout << "[SKOPIOWANO] " << filePath.string() << "\n";
         cout<<"Zrodlo: "<<sourceFilePath.string()<<"\n";
         cout<<"Cel: "<<destinationFilePath.string()<<"\n";
     }
