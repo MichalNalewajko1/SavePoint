@@ -135,44 +135,69 @@ int main()
     cout << "Liczba plikow: " << summary.files.size() << "\n";
     cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
     string backupFolderPath;
-    
+
     cout << "Podaj sciezke do folderu kopii zapasowej: ";
     getline(cin, backupFolderPath);
 
     filesystem::path backupPath(backupFolderPath);
     bool created = filesystem::create_directories(backupPath, errorCode);
 
-    if(errorCode){
+    if (errorCode)
+    {
         cout << "Nie mozna utworzyc folderu kopii zapasowej: "
              << errorCode.message() << "\n";
         return 1;
     }
 
-    if(created){
+    if (created)
+    {
         cout << "Folder kopii zapasowej zostal utworzony: " << backupFolderPath << "\n";
-    } else {
+    }
+    else
+    {
         cout << "Folder kopii zapasowej juz istnieje: " << backupFolderPath << "\n";
     }
 
-    cout<<"\nkopiowanie plikoe:\n";
+    int backupNumber = 1;
+    filesystem::path backupVersionPath;
+    while (true)
+    {
+        backupVersionPath = backupPath / ("backup_" + to_string(backupNumber));
+        bool versionCreated = filesystem::create_directories(backupVersionPath, errorCode);
+        if (errorCode)
+        {
+            cout << "Nie mozna utworzyc folderu wersji kopii zapasowej: "
+                 << errorCode.message() << "\n";
+            return 1;
+        }
+        if (versionCreated)
+        {
+            break;
+        }
+        ++backupNumber;
+    }
+
+    cout << "\nkopiowanie plikow:\n";
     for (const filesystem::path &filePath : summary.files)
     {
         filesystem::path sourceFilePath = sourcePath / filePath;
-        filesystem::path destinationFilePath = backupPath / filePath;
+        filesystem::path destinationFilePath = backupVersionPath / filePath;
         filesystem::path destinationDirectory = destinationFilePath.parent_path();
         filesystem::create_directories(destinationDirectory, errorCode);
-        if(errorCode){
+        if (errorCode)
+        {
             cout << "Nie mozna utworzyc podfolderu kopii:" << errorCode.message() << "\n";
             return 1;
         }
         filesystem::copy_file(sourceFilePath, destinationFilePath, errorCode);
-        if(errorCode){
-            cout << "Nie mozna skopiowac pliku:" <<filePath.string() << " - " << errorCode.message() << "\n";
+        if (errorCode)
+        {
+            cout << "Nie mozna skopiowac pliku:" << filePath.string() << " - " << errorCode.message() << "\n";
             return 1;
         }
         cout << "[SKOPIOWANO] " << filePath.string() << "\n";
-        cout<<"Zrodlo: "<<sourceFilePath.string()<<"\n";
-        cout<<"Cel: "<<destinationFilePath.string()<<"\n";
+        cout << "Zrodlo: " << sourceFilePath.string() << "\n";
+        cout << "Cel: " << destinationFilePath.string() << "\n";
     }
 
     return 0;
