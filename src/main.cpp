@@ -121,6 +121,13 @@ int main()
         cout << "Podana sciezka nie wskazuje folderu.\n";
         return 1;
     }
+    sourcePath = filesystem::canonical(sourcePath, errorCode);
+    if(errorCode)
+    {
+        cout << "Nie mozna ustalic sciezki zrodlowej: "
+             << errorCode.message() << "\n";
+        return 1;
+    }
 
     cout << "Folder istnieje: " << folderPath << "\n";
 
@@ -147,6 +154,35 @@ int main()
         cout << "Nie mozna utworzyc folderu kopii zapasowej: "
              << errorCode.message() << "\n";
         return 1;
+    }
+
+    backupPath = filesystem::canonical(backupPath, errorCode);
+    if(errorCode)
+    {
+        cout << "Nie mozna ustalic sciezki kopii zapasowej: "
+             << errorCode.message() << "\n";
+        return 1;
+    }
+    filesystem::path checkedPath = backupPath;
+    while(true){
+        bool sameDirectory = filesystem::equivalent(checkedPath, sourcePath, errorCode);
+        if(errorCode)
+        {
+            cout << "Nie mozna porownac folderow: "
+                 << errorCode.message() << "\n";
+            return 1;
+        }
+        if(sameDirectory)
+        {
+            cout << "Folder kopii nie moze byc folderem zrodlowym ani jego podfolderem.\n";
+            return 1;
+        }
+        filesystem::path parentPath = checkedPath.parent_path();
+        if(parentPath == checkedPath)
+        {
+            break;
+        }
+        checkedPath = parentPath;
     }
 
     if (created)
@@ -199,6 +235,8 @@ int main()
         cout << "Zrodlo: " << sourceFilePath.string() << "\n";
         cout << "Cel: " << destinationFilePath.string() << "\n";
     }
+
+    cout << "\nKopiowanie plikow zakonczone.\n";
 
     return 0;
 }
