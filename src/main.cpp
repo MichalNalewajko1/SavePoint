@@ -94,6 +94,28 @@ ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorC
     return summary;
 }
 
+bool isBackupOutsideSource(const filesystem::path &sourcePath, const filesystem::path &backupPath, error_code &errorCode)
+{
+    filesystem::path checkedPath = backupPath;
+    while (true)
+    {
+        bool sameDirectory = filesystem::equivalent(checkedPath, sourcePath, errorCode);
+        if (errorCode)
+        {
+            return false;
+        }
+        if (sameDirectory)
+        {
+            return false;
+        }
+        filesystem::path parentPath = checkedPath.parent_path();
+        if (parentPath == checkedPath){
+            return true;
+        }
+        checkedPath = parentPath;
+    }
+}
+
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
@@ -122,7 +144,7 @@ int main()
         return 1;
     }
     sourcePath = filesystem::canonical(sourcePath, errorCode);
-    if(errorCode)
+    if (errorCode)
     {
         cout << "Nie mozna ustalic sciezki zrodlowej: "
              << errorCode.message() << "\n";
@@ -157,32 +179,26 @@ int main()
     }
 
     backupPath = filesystem::canonical(backupPath, errorCode);
-    if(errorCode)
+    if (errorCode)
     {
         cout << "Nie mozna ustalic sciezki kopii zapasowej: "
              << errorCode.message() << "\n";
         return 1;
     }
-    filesystem::path checkedPath = backupPath;
-    while(true){
-        bool sameDirectory = filesystem::equivalent(checkedPath, sourcePath, errorCode);
-        if(errorCode)
-        {
-            cout << "Nie mozna porownac folderow: "
-                 << errorCode.message() << "\n";
-            return 1;
-        }
-        if(sameDirectory)
-        {
-            cout << "Folder kopii nie moze byc folderem zrodlowym ani jego podfolderem.\n";
-            return 1;
-        }
-        filesystem::path parentPath = checkedPath.parent_path();
-        if(parentPath == checkedPath)
-        {
-            break;
-        }
-        checkedPath = parentPath;
+    bool backupOutsideSource = isBackupOutsideSource(
+        sourcePath, backupPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna porownac folderow: "
+             << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!backupOutsideSource)
+    {
+        cout << "Folder kopii nie moze byc folderem zrodlowym ani jego podfolderem.\n";
+        return 1;
     }
 
     if (created)
