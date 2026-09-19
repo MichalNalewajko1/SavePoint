@@ -109,10 +109,31 @@ bool isBackupOutsideSource(const filesystem::path &sourcePath, const filesystem:
             return false;
         }
         filesystem::path parentPath = checkedPath.parent_path();
-        if (parentPath == checkedPath){
+        if (parentPath == checkedPath)
+        {
             return true;
         }
         checkedPath = parentPath;
+    }
+}
+
+filesystem::path createBackupVersion(const filesystem::path &backupPath, error_code &errorCode)
+{
+    int backupNumber = 1;
+    filesystem::path backupVersionPath;
+    while (true)
+    {
+        backupVersionPath = backupPath / ("backup_" + to_string(backupNumber));
+        bool versionCreated = filesystem::create_directories(backupVersionPath, errorCode);
+        if (errorCode)
+        {
+            return filesystem::path();
+        }
+        if (versionCreated)
+        {
+            return backupVersionPath;
+        }
+        ++backupNumber;
     }
 }
 
@@ -209,24 +230,12 @@ int main()
     {
         cout << "Folder kopii zapasowej juz istnieje: " << backupFolderPath << "\n";
     }
+    filesystem::path backupVersionPath = createBackupVersion(backupPath, errorCode);
 
-    int backupNumber = 1;
-    filesystem::path backupVersionPath;
-    while (true)
+    if (errorCode)
     {
-        backupVersionPath = backupPath / ("backup_" + to_string(backupNumber));
-        bool versionCreated = filesystem::create_directories(backupVersionPath, errorCode);
-        if (errorCode)
-        {
-            cout << "Nie mozna utworzyc folderu wersji kopii zapasowej: "
-                 << errorCode.message() << "\n";
-            return 1;
-        }
-        if (versionCreated)
-        {
-            break;
-        }
-        ++backupNumber;
+        cout << "Nie mozna utworzyc folderu wersji kopii zapasowej: " << errorCode.message() << "\n";
+        return 1;
     }
 
     cout << "\nkopiowanie plikow:\n";
