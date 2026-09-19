@@ -10,6 +10,7 @@ using namespace std;
 struct ScanSummary
 {
     vector<filesystem::path> files;
+    vector<filesystem::path> directories;
     uintmax_t totalSize = 0;
 };
 
@@ -56,6 +57,7 @@ ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorC
             }
             else
             {
+                summary.directories.push_back(relativePath);
                 cout << "[FOLDER] ";
             }
         }
@@ -169,6 +171,26 @@ bool copyFiles(const filesystem::path &sourcePath, const filesystem::path &backu
 
     return true;
 }
+bool createBackupDirectories(const filesystem::path &backupVersionPath, const vector<filesystem::path> &directories, error_code &errorCode)
+{
+    errorCode.clear();
+
+    for (const filesystem::path &directoryPath : directories)
+    {
+        filesystem::path destinationDirectory = backupVersionPath / directoryPath;
+
+        filesystem::create_directories(destinationDirectory, errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna utworzyc folderu w kopii: "
+                 << errorCode.message() << "\n";
+            return false;
+        }
+    }
+
+    return true;
+}
 
 int main()
 {
@@ -215,6 +237,7 @@ int main()
     }
 
     cout << "\nPodsumowanie:\n";
+    cout << "Liczba folderow: " << summary.directories.size() << "\n";
     cout << "Liczba plikow: " << summary.files.size() << "\n";
     cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
     string backupFolderPath;
@@ -268,6 +291,12 @@ int main()
     if (errorCode)
     {
         cout << "Nie mozna utworzyc folderu wersji kopii zapasowej: " << errorCode.message() << "\n";
+        return 1;
+    }
+    bool directoriesCreated = createBackupDirectories(backupVersionPath, summary.directories, errorCode);
+
+    if (!directoriesCreated)
+    {
         return 1;
     }
 
