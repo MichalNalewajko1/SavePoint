@@ -262,8 +262,7 @@ int main()
              << errorCode.message() << "\n";
         return 1;
     }
-    bool backupOutsideSource = isBackupOutsideSource(
-        sourcePath, backupPath, errorCode);
+    bool backupOutsideSource = isBackupOutsideSource(sourcePath, backupPath, errorCode);
 
     if (errorCode)
     {
@@ -293,7 +292,15 @@ int main()
         cout << "Nie mozna utworzyc folderu wersji kopii zapasowej: " << errorCode.message() << "\n";
         return 1;
     }
-    bool directoriesCreated = createBackupDirectories(backupVersionPath, summary.directories, errorCode);
+
+    filesystem::path backupDataPath = backupVersionPath / "data";
+    filesystem::create_directories(backupDataPath, errorCode);
+    if (errorCode)
+    {
+        cout << "Nie mozna utworzyc folderu danych kopii zapasowej: " << errorCode.message() << "\n";
+        return 1;
+    }
+    bool directoriesCreated = createBackupDirectories(backupDataPath, summary.directories, errorCode);
 
     if (!directoriesCreated)
     {
@@ -302,7 +309,7 @@ int main()
 
     cout << "\nKopiowanie plikow:\n";
 
-    bool copied = copyFiles(sourcePath, backupVersionPath, summary.files, errorCode);
+    bool copied = copyFiles(sourcePath, backupDataPath, summary.files, errorCode);
 
     if (!copied)
     {
