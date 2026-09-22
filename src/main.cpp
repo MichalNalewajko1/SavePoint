@@ -195,13 +195,12 @@ bool createBackupDirectories(const filesystem::path &backupVersionPath, const ve
 
 bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path &backupVersionPath, const ScanSummary &summary)
 {
-    filesystem::path infoPath = backupVersionPath / "backup_info.txt";
-
+    filesystem::path infoPath = backupVersionPath / "backup_info.tmp";
     ofstream infoFile(infoPath);
 
     if (!infoFile)
     {
-        cout << "Nie mozna otworzyc pliku opisu kopii: "<< infoPath.string() << "\n";
+        cout << "Nie mozna otworzyc pliku opisu kopii: " << infoPath.string() << "\n";
         return false;
     }
 
@@ -230,6 +229,17 @@ bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path 
         return false;
     }
 
+    filesystem::path finalInfoPath = backupVersionPath / "backup_info.txt";
+
+    error_code errorCode;
+
+    filesystem::rename(infoPath, finalInfoPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna przeniesc pliku opisu kopii: " << errorCode.message() << "\n";
+        return false;
+    }
     return true;
 }
 
