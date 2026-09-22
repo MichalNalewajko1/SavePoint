@@ -193,10 +193,7 @@ bool createBackupDirectories(const filesystem::path &backupVersionPath, const ve
     return true;
 }
 
-bool writeBackupInfo(
-    const filesystem::path &sourcePath,
-    const filesystem::path &backupVersionPath,
-    const ScanSummary &summary)
+bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path &backupVersionPath, const ScanSummary &summary)
 {
     filesystem::path infoPath = backupVersionPath / "backup_info.txt";
 
@@ -204,8 +201,7 @@ bool writeBackupInfo(
 
     if (!infoFile)
     {
-        cout << "Nie mozna otworzyc pliku opisu kopii: "
-             << infoPath.string() << "\n";
+        cout << "Nie mozna otworzyc pliku opisu kopii: "<< infoPath.string() << "\n";
         return false;
     }
 
@@ -214,6 +210,16 @@ bool writeBackupInfo(
     infoFile << "Liczba folderow: " << summary.directories.size() << "\n";
     infoFile << "Liczba plikow: " << summary.files.size() << "\n";
     infoFile << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
+    infoFile << "Lista folderow:\n";
+    for (const filesystem::path &directoryPath : summary.directories)
+    {
+        infoFile << directoryPath.string() << "\n";
+    }
+    infoFile << "Lista plikow:\n";
+    for (const filesystem::path &filePath : summary.files)
+    {
+        infoFile << filePath.string() << "\n";
+    }
 
     infoFile.close();
 
