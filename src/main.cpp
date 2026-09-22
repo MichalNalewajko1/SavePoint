@@ -4,6 +4,7 @@
 #include <system_error>
 #include <cstdint>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -192,6 +193,40 @@ bool createBackupDirectories(const filesystem::path &backupVersionPath, const ve
     return true;
 }
 
+bool writeBackupInfo(
+    const filesystem::path &sourcePath,
+    const filesystem::path &backupVersionPath,
+    const ScanSummary &summary)
+{
+    filesystem::path infoPath = backupVersionPath / "backup_info.txt";
+
+    ofstream infoFile(infoPath);
+
+    if (!infoFile)
+    {
+        cout << "Nie mozna otworzyc pliku opisu kopii: "
+             << infoPath.string() << "\n";
+        return false;
+    }
+
+    infoFile << "SavePoint - opis kopii\n";
+    infoFile << "Zrodlo: " << sourcePath.string() << "\n";
+    infoFile << "Liczba folderow: " << summary.directories.size() << "\n";
+    infoFile << "Liczba plikow: " << summary.files.size() << "\n";
+    infoFile << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
+
+    infoFile.close();
+
+    if (!infoFile)
+    {
+        cout << "Nie udalo sie zapisac opisu kopii: "
+             << infoPath.string() << "\n";
+        return false;
+    }
+
+    return true;
+}
+
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
@@ -312,6 +347,12 @@ int main()
     bool copied = copyFiles(sourcePath, backupDataPath, summary.files, errorCode);
 
     if (!copied)
+    {
+        return 1;
+    }
+    bool infoSaved = writeBackupInfo(sourcePath, backupVersionPath, summary);
+
+    if (!infoSaved)
     {
         return 1;
     }
