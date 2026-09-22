@@ -243,10 +243,8 @@ bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path 
     return true;
 }
 
-int main()
+int createBackup()
 {
-    cout << "SavePoint uruchomiony!\n";
-
     string folderPath;
 
     cout << "Podaj sciezke do folderu: ";
@@ -376,4 +374,29 @@ int main()
     cout << "\nKopiowanie plikow zakonczone.\n";
 
     return 0;
+}
+
+int main()
+{
+    cout << "SavePoint uruchomiony!\n";
+    cout << "1. Utworz kopie zapasowa\n";
+    cout << "0. Zakoncz program\n";
+    cout << "Wybor: ";
+
+    string choice;
+    getline(cin, choice);
+
+
+    if (choice == "1")
+    {
+        return createBackup();
+    }
+
+    if (choice == "0")
+    {
+        return 0;
+    }
+
+    cout << "Nieprawidlowy wybor.\n";
+    return 1;
 }
