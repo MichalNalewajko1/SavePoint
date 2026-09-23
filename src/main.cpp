@@ -375,11 +375,47 @@ int createBackup()
 
     return 0;
 }
+int showBackupInfo()
+{
+    string versionFolderPath;
+
+    cout << "Podaj sciezke do folderu wersji kopii: ";
+    getline(cin, versionFolderPath);
+
+    filesystem::path backupVersionPath(versionFolderPath);
+    filesystem::path infoPath = backupVersionPath / "backup_info.txt";
+
+    ifstream infoFile(infoPath);
+
+    if (!infoFile)
+    {
+        cout << "Nie mozna otworzyc opisu kopii: "<< infoPath.string() << "\n";
+        return 1;
+    }
+
+    cout << "\nOpis kopii:\n";
+
+    string line;
+
+    while (getline(infoFile, line))
+    {
+        cout << line << "\n";
+    }
+
+    if (infoFile.bad() || !infoFile.eof())
+    {
+        cout << "Blad podczas odczytywania opisu kopii.\n";
+        return 1;
+    }
+
+    return 0;
+}
 
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
     cout << "1. Utworz kopie zapasowa\n";
+    cout<<"2. Wyswietl opis kopii\n";
     cout << "0. Zakoncz program\n";
     cout << "Wybor: ";
 
@@ -390,6 +426,11 @@ int main()
     if (choice == "1")
     {
         return createBackup();
+    }
+
+    if (choice == "2")
+    {
+        return showBackupInfo();
     }
 
     if (choice == "0")
