@@ -411,6 +411,66 @@ int showBackupInfo()
     return 0;
 }
 
+int listBackups()
+{
+    string backupFolderPath;
+
+    cout << "Podaj sciezke do glownego folderu kopii: ";
+
+    if (!getline(cin, backupFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki.\n";
+        return 1;
+    }
+
+    filesystem::path backupPath(backupFolderPath);
+    error_code errorCode;
+
+    filesystem::directory_iterator current(backupPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna otworzyc folderu kopii: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    filesystem::directory_iterator end;
+
+    cout << "\nFoldery kopii:\n";
+
+    while (current != end)
+    {
+        filesystem::file_status entryStatus = current->status(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna odczytac informacji o elemencie: " << errorCode.message() << "\n";
+            return 1;
+        }
+
+        if (filesystem::is_directory(entryStatus))
+        {
+            string folderName = current->path().filename().string();
+
+            if (folderName.starts_with("backup_"))
+            {
+                cout << folderName << "\n";
+            }
+        }
+
+        current.increment(errorCode);
+
+        if (errorCode)
+        {
+            cout << "Blad podczas przegladania folderu: "
+                 << errorCode.message() << "\n";
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
@@ -419,6 +479,7 @@ int main()
     {
         cout << "\n1. Utworz kopie zapasowa\n";
         cout << "2. Wyswietl opis kopii\n";
+        cout<< "3. Wyswietl liste kopii\n";
         cout << "0. Zakoncz program\n";
         cout << "Wybor: ";
 
@@ -444,6 +505,10 @@ int main()
         else if (choice == "2")
         {
             result = showBackupInfo();
+        }
+        else if (choice == "3")
+        {
+            result = listBackups();
         }
         else
         {
