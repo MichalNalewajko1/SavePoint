@@ -414,30 +414,46 @@ int showBackupInfo()
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
-    cout << "1. Utworz kopie zapasowa\n";
-    cout<<"2. Wyswietl opis kopii\n";
-    cout << "0. Zakoncz program\n";
-    cout << "Wybor: ";
 
-    string choice;
-    getline(cin, choice);
-
-
-    if (choice == "1")
+    while (true)
     {
-        return createBackup();
-    }
+        cout << "\n1. Utworz kopie zapasowa\n";
+        cout << "2. Wyswietl opis kopii\n";
+        cout << "0. Zakoncz program\n";
+        cout << "Wybor: ";
 
-    if (choice == "2")
-    {
-        return showBackupInfo();
-    }
+        string choice;
 
-    if (choice == "0")
-    {
-        return 0;
-    }
+        if (!getline(cin, choice))
+        {
+            cout << "Nie mozna odczytac wyboru.\n";
+            return 1;
+        }
 
-    cout << "Nieprawidlowy wybor.\n";
-    return 1;
+        if (choice == "0")
+        {
+            return 0;
+        }
+
+        int result = 0;
+
+        if (choice == "1")
+        {
+            result = createBackup();
+        }
+        else if (choice == "2")
+        {
+            result = showBackupInfo();
+        }
+        else
+        {
+            cout << "Nieprawidlowy wybor.\n";
+            continue;
+        }
+
+        if (result != 0)
+        {
+            cout << "Operacja zakonczyla sie bledem.\n";
+        }
+    }
 }
