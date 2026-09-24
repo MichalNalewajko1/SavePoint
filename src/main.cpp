@@ -389,7 +389,7 @@ int showBackupInfo()
 
     if (!infoFile)
     {
-        cout << "Nie mozna otworzyc opisu kopii: "<< infoPath.string() << "\n";
+        cout << "Nie mozna otworzyc opisu kopii: " << infoPath.string() << "\n";
         return 1;
     }
 
@@ -454,6 +454,40 @@ int listBackups()
 
             if (folderName.starts_with("backup_"))
             {
+                filesystem::path infoPath = current->path() / "backup_info.txt";
+
+                bool infoExists = filesystem::exists(infoPath, errorCode);
+
+                if (errorCode)
+                {
+                    cout << "Nie mozna sprawdzic obecnosci opisu: "
+                         << errorCode.message() << "\n";
+                    return 1;
+                }
+
+                bool hasInfoFile = false;
+
+                if (infoExists)
+                {
+                    hasInfoFile = filesystem::is_regular_file(infoPath, errorCode);
+
+                    if (errorCode)
+                    {
+                        cout << "Nie mozna sprawdzic typu pliku opisu: "
+                             << errorCode.message() << "\n";
+                        return 1;
+                    }
+                }
+
+                if (hasInfoFile)
+                {
+                    cout << "[Z OPISEM] ";
+                }
+                else
+                {
+                    cout<< "[BRAK PLIKU OPISU] ";
+                }
+
                 cout << folderName << "\n";
             }
         }
@@ -462,8 +496,7 @@ int listBackups()
 
         if (errorCode)
         {
-            cout << "Blad podczas przegladania folderu: "
-                 << errorCode.message() << "\n";
+            cout << "Blad podczas przegladania folderu: " << errorCode.message() << "\n";
             return 1;
         }
     }
@@ -479,7 +512,7 @@ int main()
     {
         cout << "\n1. Utworz kopie zapasowa\n";
         cout << "2. Wyswietl opis kopii\n";
-        cout<< "3. Wyswietl liste kopii\n";
+        cout << "3. Wyswietl liste kopii\n";
         cout << "0. Zakoncz program\n";
         cout << "Wybor: ";
 
