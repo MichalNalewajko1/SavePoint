@@ -485,7 +485,7 @@ int listBackups()
                 }
                 else
                 {
-                    cout<< "[BRAK PLIKU OPISU] ";
+                    cout << "[BRAK PLIKU OPISU] ";
                 }
 
                 cout << folderName << "\n";
@@ -525,7 +525,6 @@ int restoreBackup()
     filesystem::path backupVersionPath(versionFolderPath);
     filesystem::path backupDataPath = backupVersionPath / "data";
 
-
     error_code errorCode;
 
     bool isDataDirectory = filesystem::is_directory(backupDataPath, errorCode);
@@ -543,6 +542,76 @@ int restoreBackup()
     }
 
     cout << "\nFolder danych do przywrocenia: " << backupDataPath.string() << "\n";
+    string restoreFolderPath;
+
+    cout << "Podaj sciezke do folderu docelowego: ";
+
+    if (!getline(cin, restoreFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki docelowej.\n";
+        return 1;
+    }
+
+    if (restoreFolderPath.empty())
+    {
+        cout << "Sciezka docelowa nie moze byc pusta.\n";
+        return 1;
+    }
+
+    filesystem::path restorePath(restoreFolderPath);
+
+    filesystem::create_directories(restorePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna przygotowac folderu docelowego: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    bool isEmpty = filesystem::is_empty(restorePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna sprawdzic zawartosci folderu docelowego: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!isEmpty)
+    {
+        cout << "Folder docelowy musi byc pusty.\n";
+        return 1;
+    }
+    backupVersionPath = filesystem::canonical(backupVersionPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna ustalic sciezki wersji kopii: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    restorePath = filesystem::canonical(restorePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna ustalic sciezki docelowej: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    bool restoreOutsideBackup = isBackupOutsideSource(backupVersionPath, restorePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna porownac folderow: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!restoreOutsideBackup)
+    {
+        cout << "Folder docelowy nie moze byc folderem wersji kopii ani jego podfolderem.\n";
+        return 1;
+    }
+
+    cout << "Wybrano pusty folder docelowy: " << restorePath.string() << "\n";
 
     return 0;
 }
@@ -556,7 +625,7 @@ int main()
         cout << "\n1. Utworz kopie zapasowa\n";
         cout << "2. Wyswietl opis kopii\n";
         cout << "3. Wyswietl liste kopii\n";
-        cout<< "4. Przywroc kopie zapasowa\n";
+        cout << "4. Przywroc kopie zapasowa\n";
         cout << "0. Zakoncz program\n";
         cout << "Wybor: ";
 
