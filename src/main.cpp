@@ -504,6 +504,49 @@ int listBackups()
     return 0;
 }
 
+int restoreBackup()
+{
+    string versionFolderPath;
+
+    cout << "Podaj sciezke do folderu wersji kopii: ";
+
+    if (!getline(cin, versionFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki.\n";
+        return 1;
+    }
+
+    if (versionFolderPath.empty())
+    {
+        cout << "Sciezka nie moze byc pusta.\n";
+        return 1;
+    }
+
+    filesystem::path backupVersionPath(versionFolderPath);
+    filesystem::path backupDataPath = backupVersionPath / "data";
+
+
+    error_code errorCode;
+
+    bool isDataDirectory = filesystem::is_directory(backupDataPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna sprawdzic folderu danych kopii: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!isDataDirectory)
+    {
+        cout << "Sciezka data nie wskazuje folderu.\n";
+        return 1;
+    }
+
+    cout << "\nFolder danych do przywrocenia: " << backupDataPath.string() << "\n";
+
+    return 0;
+}
+
 int main()
 {
     cout << "SavePoint uruchomiony!\n";
@@ -513,6 +556,7 @@ int main()
         cout << "\n1. Utworz kopie zapasowa\n";
         cout << "2. Wyswietl opis kopii\n";
         cout << "3. Wyswietl liste kopii\n";
+        cout<< "4. Przywroc kopie zapasowa\n";
         cout << "0. Zakoncz program\n";
         cout << "Wybor: ";
 
@@ -542,6 +586,10 @@ int main()
         else if (choice == "3")
         {
             result = listBackups();
+        }
+        else if (choice == "4")
+        {
+            result = restoreBackup();
         }
         else
         {
