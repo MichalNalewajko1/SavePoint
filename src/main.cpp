@@ -21,7 +21,7 @@ bool shouldSkipDirectory(const filesystem::path &directoryPath)
     return (folderName == ".git" || folderName == "build");
 }
 
-ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorCode)
+ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorCode, bool applyExclusions = true)
 {
     ScanSummary summary;
 
@@ -51,7 +51,7 @@ ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorC
 
         if (filesystem::is_directory(entryStatus))
         {
-            if (shouldSkipDirectory(current->path()))
+            if (applyExclusions && shouldSkipDirectory(current->path()))
             {
                 current.disable_recursion_pending();
                 cout << "[POMINIETY FOLDER] ";
@@ -585,7 +585,7 @@ int restoreBackup()
 
     if (errorCode)
     {
-        cout << "Nie mozna ustalic sciezki wersji kopii: "<< errorCode.message() << "\n";
+        cout << "Nie mozna ustalic sciezki wersji kopii: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -593,7 +593,7 @@ int restoreBackup()
 
     if (errorCode)
     {
-        cout << "Nie mozna ustalic sciezki docelowej: "<< errorCode.message() << "\n";
+        cout << "Nie mozna ustalic sciezki docelowej: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -601,7 +601,7 @@ int restoreBackup()
 
     if (errorCode)
     {
-        cout << "Nie mozna porownac folderow: "<< errorCode.message() << "\n";
+        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -612,6 +612,20 @@ int restoreBackup()
     }
 
     cout << "Wybrano pusty folder docelowy: " << restorePath.string() << "\n";
+    ScanSummary restoreSummary = scanDirectory(
+        backupDataPath, errorCode, false);
+
+    if (errorCode)
+    {
+        return 1;
+    }
+
+    cout << "\nDo przywrocenia:\n";
+    cout << "Liczba folderow: " << restoreSummary.directories.size() << "\n";
+
+    cout << "Liczba plikow: " << restoreSummary.files.size() << "\n";
+
+    cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
 
     return 0;
 }
