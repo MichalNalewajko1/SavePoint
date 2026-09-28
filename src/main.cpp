@@ -68,8 +68,7 @@ ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorC
 
             if (errorCode)
             {
-                cout << "Nie mozna odczytac rozmiaru pliku: "
-                     << errorCode.message() << "\n";
+                cout << "Nie mozna odczytac rozmiaru pliku: " << errorCode.message() << "\n";
                 return summary;
             }
 
@@ -88,8 +87,7 @@ ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorC
 
         if (errorCode)
         {
-            cout << "Blad podczas przegladania folderu: "
-                 << errorCode.message() << "\n";
+            cout << "Blad podczas przegladania folderu: " << errorCode.message() << "\n";
             return summary;
         }
     }
@@ -612,8 +610,7 @@ int restoreBackup()
     }
 
     cout << "Wybrano pusty folder docelowy: " << restorePath.string() << "\n";
-    ScanSummary restoreSummary = scanDirectory(
-        backupDataPath, errorCode, false);
+    ScanSummary restoreSummary = scanDirectory(backupDataPath, errorCode, false);
 
     if (errorCode)
     {
@@ -626,7 +623,24 @@ int restoreBackup()
     cout << "Liczba plikow: " << restoreSummary.files.size() << "\n";
 
     cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
+    bool directoriesCreated = createBackupDirectories(restorePath, restoreSummary.directories, errorCode);
 
+    if (!directoriesCreated)
+    {
+        return 1;
+    }
+
+    cout << "\nPrzywracanie plikow:\n";
+
+    bool copied = copyFiles(backupDataPath, restorePath, restoreSummary.files, errorCode);
+
+    if (!copied)
+    {
+        return 1;
+    }
+
+    cout << "\nPrzywracanie zakonczone.\n";
+    cout << "Folder docelowy: " << restorePath.string() << "\n";
     return 0;
 }
 
