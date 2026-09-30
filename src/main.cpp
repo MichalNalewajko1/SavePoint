@@ -340,7 +340,7 @@ int createBackup()
         return 1;
     }
 
-    filesystem::path backupDataPath = backupVersionPath / "data";
+    filesystem::path backupDataPath = backupVersionPath/"data";
     filesystem::create_directories(backupDataPath, errorCode);
     if (errorCode)
     {
@@ -621,6 +621,8 @@ int restoreBackup()
     cout << "Liczba folderow: " << restoreSummary.directories.size() << "\n";
 
     cout << "Liczba plikow: " << restoreSummary.files.size() << "\n";
+
+
 
     cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
     bool directoriesCreated = createBackupDirectories(restorePath, restoreSummary.directories, errorCode);
