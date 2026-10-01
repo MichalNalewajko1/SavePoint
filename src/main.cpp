@@ -1,3 +1,5 @@
+#include "ScanSummary.h"
+
 #include <iostream>
 #include <string>
 #include <filesystem>
@@ -7,13 +9,6 @@
 #include <fstream>
 
 using namespace std;
-
-struct ScanSummary
-{
-    vector<filesystem::path> files;
-    vector<filesystem::path> directories;
-    uintmax_t totalSize = 0;
-};
 
 bool shouldSkipDirectory(const filesystem::path &directoryPath)
 {
