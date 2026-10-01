@@ -4,6 +4,9 @@
 #include <string>
 
 using namespace std;
+DirectoryScanner::DirectoryScanner(bool useExclusions) : applyExclusions(useExclusions)
+{
+}
 
 bool shouldSkipDirectory(const filesystem::path &directoryPath)
 {
@@ -11,7 +14,7 @@ bool shouldSkipDirectory(const filesystem::path &directoryPath)
     return (folderName == ".git" || folderName == "build");
 }
 
-ScanSummary scanDirectory(const filesystem::path &sourcePath, error_code &errorCode, bool applyExclusions)
+ScanSummary DirectoryScanner::scan(const filesystem::path &sourcePath, error_code &errorCode) const
 {
     ScanSummary summary;
 

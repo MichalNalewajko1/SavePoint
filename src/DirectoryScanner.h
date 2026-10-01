@@ -5,4 +5,15 @@
 #include <filesystem>
 #include <system_error>
 
-ScanSummary scanDirectory(const std::filesystem::path &sourcePath, std::error_code &errorCode, bool applyExclusions = true);
+class DirectoryScanner
+{
+public:
+    explicit DirectoryScanner(bool useExclusions = true);
+
+    ScanSummary scan(
+        const std::filesystem::path &sourcePath,
+        std::error_code &errorCode) const;
+
+private:
+    bool applyExclusions;
+};

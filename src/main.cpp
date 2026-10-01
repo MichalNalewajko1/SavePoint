@@ -11,8 +11,6 @@
 
 using namespace std;
 
-
-
 bool isBackupOutsideSource(const filesystem::path &sourcePath, const filesystem::path &backupPath, error_code &errorCode)
 {
     filesystem::path checkedPath = backupPath;
@@ -40,6 +38,7 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
 {
     int backupNumber = 1;
     filesystem::path backupVersionPath;
+
     while (true)
     {
         backupVersionPath = backupPath / ("backup_" + to_string(backupNumber));
@@ -194,7 +193,8 @@ int createBackup()
 
     cout << "Folder istnieje: " << folderPath << "\n";
 
-    ScanSummary summary = scanDirectory(sourcePath, errorCode);
+    DirectoryScanner scanner;
+    ScanSummary summary = scanner.scan(sourcePath, errorCode);
 
     if (errorCode)
     {
@@ -258,7 +258,7 @@ int createBackup()
         return 1;
     }
 
-    filesystem::path backupDataPath = backupVersionPath/"data";
+    filesystem::path backupDataPath = backupVersionPath / "data";
     filesystem::create_directories(backupDataPath, errorCode);
     if (errorCode)
     {
@@ -528,8 +528,8 @@ int restoreBackup()
     }
 
     cout << "Wybrano pusty folder docelowy: " << restorePath.string() << "\n";
-    ScanSummary restoreSummary = scanDirectory(backupDataPath, errorCode, false);
-
+    DirectoryScanner scanner(false);
+    ScanSummary restoreSummary = scanner.scan(backupDataPath, errorCode);
     if (errorCode)
     {
         return 1;
@@ -539,8 +539,6 @@ int restoreBackup()
     cout << "Liczba folderow: " << restoreSummary.directories.size() << "\n";
 
     cout << "Liczba plikow: " << restoreSummary.files.size() << "\n";
-
-
 
     cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
     bool directoriesCreated = createBackupDirectories(restorePath, restoreSummary.directories, errorCode);
