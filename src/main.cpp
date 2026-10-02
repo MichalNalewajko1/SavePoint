@@ -1,5 +1,6 @@
 #include "ScanSummary.h"
 #include "DirectoryScanner.h"
+#include "FileCopier.h"
 
 #include <iostream>
 #include <string>
@@ -54,39 +55,7 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
         ++backupNumber;
     }
 }
-bool copyFiles(const filesystem::path &sourcePath, const filesystem::path &backupVersionPath, const vector<filesystem::path> &files, error_code &errorCode)
-{
-    errorCode.clear();
 
-    for (const filesystem::path &filePath : files)
-    {
-        filesystem::path sourceFilePath = sourcePath / filePath;
-        filesystem::path destinationFilePath = backupVersionPath / filePath;
-        filesystem::path destinationDirectory = destinationFilePath.parent_path();
-
-        filesystem::create_directories(destinationDirectory, errorCode);
-
-        if (errorCode)
-        {
-            cout << "Nie mozna utworzyc podfolderu kopii: " << errorCode.message() << "\n";
-            return false;
-        }
-
-        filesystem::copy_file(sourceFilePath, destinationFilePath, errorCode);
-
-        if (errorCode)
-        {
-            cout << "Nie mozna skopiowac pliku: " << filePath.string() << " - " << errorCode.message() << "\n";
-            return false;
-        }
-
-        cout << "[SKOPIOWANO] " << filePath.string() << "\n";
-        cout << "Zrodlo: " << sourceFilePath.string() << "\n";
-        cout << "Cel: " << destinationFilePath.string() << "\n";
-    }
-
-    return true;
-}
 bool createBackupDirectories(const filesystem::path &backupVersionPath, const vector<filesystem::path> &directories, error_code &errorCode)
 {
     errorCode.clear();
@@ -274,8 +243,8 @@ int createBackup()
 
     cout << "\nKopiowanie plikow:\n";
 
-    bool copied = copyFiles(sourcePath, backupDataPath, summary.files, errorCode);
-
+    FileCopier copier(sourcePath, backupDataPath);
+    bool copied = copier.copy(summary.files, errorCode);
     if (!copied)
     {
         return 1;
@@ -550,8 +519,8 @@ int restoreBackup()
 
     cout << "\nPrzywracanie plikow:\n";
 
-    bool copied = copyFiles(backupDataPath, restorePath, restoreSummary.files, errorCode);
-
+    FileCopier copier(backupDataPath, restorePath);
+    bool copied = copier.copy(restoreSummary.files, errorCode);
     if (!copied)
     {
         return 1;

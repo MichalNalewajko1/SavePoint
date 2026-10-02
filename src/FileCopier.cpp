@@ -1,0 +1,43 @@
+#include "FileCopier.h"
+
+#include <iostream>
+
+using namespace std;
+
+FileCopier::FileCopier(const filesystem::path &source, const filesystem::path &destination) : sourcePath(source), destinationPath(destination)
+{
+}
+
+bool FileCopier::copy(const vector<filesystem::path> &files, error_code &errorCode) const
+{
+    errorCode.clear();
+
+    for (const filesystem::path &filePath : files)
+    {
+        filesystem::path sourceFilePath = sourcePath / filePath;
+        filesystem::path destinationFilePath = destinationPath / filePath;
+        filesystem::path destinationDirectory = destinationFilePath.parent_path();
+
+        filesystem::create_directories(destinationDirectory, errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna utworzyc podfolderu kopii: " << errorCode.message() << "\n";
+            return false;
+        }
+
+        filesystem::copy_file(sourceFilePath, destinationFilePath, errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna skopiowac pliku: " << filePath.string() << " - " << errorCode.message() << "\n";
+            return false;
+        }
+
+        cout << "[SKOPIOWANO] " << filePath.string() << "\n";
+        cout << "Zrodlo: " << sourceFilePath.string() << "\n";
+        cout << "Cel: " << destinationFilePath.string() << "\n";
+    }
+
+    return true;
+}
