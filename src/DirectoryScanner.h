@@ -10,10 +10,10 @@ class DirectoryScanner
 public:
     explicit DirectoryScanner(bool useExclusions = true);
 
-    ScanSummary scan(
-        const std::filesystem::path &sourcePath,
-        std::error_code &errorCode) const;
+    ScanSummary scan(const std::filesystem::path &sourcePath, std::error_code &errorCode) const;
 
 private:
+    bool shouldSkipDirectory(const std::filesystem::path &directoryPath) const;
+
     bool applyExclusions;
 };

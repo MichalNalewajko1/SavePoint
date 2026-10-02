@@ -8,10 +8,16 @@ DirectoryScanner::DirectoryScanner(bool useExclusions) : applyExclusions(useExcl
 {
 }
 
-bool shouldSkipDirectory(const filesystem::path &directoryPath)
+bool DirectoryScanner::shouldSkipDirectory(const filesystem::path &directoryPath) const
 {
+    if (!applyExclusions)
+    {
+        return false;
+    }
+
     string folderName = directoryPath.filename().string();
-    return (folderName == ".git" || folderName == "build");
+
+    return folderName == ".git" || folderName == "build";
 }
 
 ScanSummary DirectoryScanner::scan(const filesystem::path &sourcePath, error_code &errorCode) const
@@ -22,8 +28,7 @@ ScanSummary DirectoryScanner::scan(const filesystem::path &sourcePath, error_cod
 
     if (errorCode)
     {
-        cout << "Nie mozna otworzyc folderu: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna otworzyc folderu: " << errorCode.message() << "\n";
         return summary;
     }
 
@@ -36,15 +41,14 @@ ScanSummary DirectoryScanner::scan(const filesystem::path &sourcePath, error_cod
 
         if (errorCode)
         {
-            cout << "Nie mozna odczytac informacji o elemencie: "
-                 << errorCode.message() << "\n";
+            cout << "Nie mozna odczytac informacji o elemencie: " << errorCode.message() << "\n";
             return summary;
         }
         filesystem::path relativePath = current->path().lexically_relative(sourcePath);
 
         if (filesystem::is_directory(entryStatus))
         {
-            if (applyExclusions && shouldSkipDirectory(current->path()))
+            if (shouldSkipDirectory(current->path()))
             {
                 current.disable_recursion_pending();
                 cout << "[POMINIETY FOLDER] ";
