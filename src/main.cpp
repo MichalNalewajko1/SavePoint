@@ -517,7 +517,7 @@ int restoreBackup()
         return 1;
     }
 
-    cout << "\nPrzywracanie plikow:\n";
+    cout << "\nPrzywracanie plikoww:\n";
 
     FileCopier copier(backupDataPath, restorePath);
     bool copied = copier.copy(restoreSummary.files, errorCode);
