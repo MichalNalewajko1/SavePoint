@@ -11,6 +11,8 @@ public:
 
     bool copy(const std::vector<std::filesystem::path> &files, std::error_code &errorCode) const;
 
+    bool createDirectories(const std::vector<std::filesystem::path> &directories, std::error_code &errorCode) const;
+    
 private:
     std::filesystem::path sourcePath;
     std::filesystem::path destinationPath;

@@ -56,27 +56,6 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
     }
 }
 
-bool createBackupDirectories(const filesystem::path &backupVersionPath, const vector<filesystem::path> &directories, error_code &errorCode)
-{
-    errorCode.clear();
-
-    for (const filesystem::path &directoryPath : directories)
-    {
-        filesystem::path destinationDirectory = backupVersionPath / directoryPath;
-
-        filesystem::create_directories(destinationDirectory, errorCode);
-
-        if (errorCode)
-        {
-            cout << "Nie mozna utworzyc folderu w kopii: "
-                 << errorCode.message() << "\n";
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path &backupVersionPath, const ScanSummary &summary)
 {
     filesystem::path infoPath = backupVersionPath / "backup_info.tmp";
@@ -234,7 +213,10 @@ int createBackup()
         cout << "Nie mozna utworzyc folderu danych kopii zapasowej: " << errorCode.message() << "\n";
         return 1;
     }
-    bool directoriesCreated = createBackupDirectories(backupDataPath, summary.directories, errorCode);
+    FileCopier copier(sourcePath, backupDataPath);
+
+    bool directoriesCreated =
+        copier.createDirectories(summary.directories, errorCode);
 
     if (!directoriesCreated)
     {
@@ -243,8 +225,8 @@ int createBackup()
 
     cout << "\nKopiowanie plikow:\n";
 
-    FileCopier copier(sourcePath, backupDataPath);
     bool copied = copier.copy(summary.files, errorCode);
+
     if (!copied)
     {
         return 1;
@@ -260,6 +242,7 @@ int createBackup()
 
     return 0;
 }
+
 int showBackupInfo()
 {
     string versionFolderPath;
@@ -510,7 +493,10 @@ int restoreBackup()
     cout << "Liczba plikow: " << restoreSummary.files.size() << "\n";
 
     cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
-    bool directoriesCreated = createBackupDirectories(restorePath, restoreSummary.directories, errorCode);
+    FileCopier copier(backupDataPath, restorePath);
+
+    bool directoriesCreated =
+        copier.createDirectories(restoreSummary.directories, errorCode);
 
     if (!directoriesCreated)
     {
@@ -519,8 +505,8 @@ int restoreBackup()
 
     cout << "\nPrzywracanie plikoww:\n";
 
-    FileCopier copier(backupDataPath, restorePath);
     bool copied = copier.copy(restoreSummary.files, errorCode);
+
     if (!copied)
     {
         return 1;

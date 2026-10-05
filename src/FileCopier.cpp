@@ -41,3 +41,23 @@ bool FileCopier::copy(const vector<filesystem::path> &files, error_code &errorCo
 
     return true;
 }
+
+bool FileCopier::createDirectories(const vector<filesystem::path> &directories, error_code &errorCode) const
+{
+    errorCode.clear();
+
+    for (const filesystem::path &directoryPath : directories)
+    {
+        filesystem::path destinationDirectory = destinationPath / directoryPath;
+
+        filesystem::create_directories(destinationDirectory, errorCode);
+
+        if (errorCode)
+        {
+            cout << "Nie mozna utworzyc folderu docelowego: "<< errorCode.message() << "\n";
+            return false;
+        }
+    }
+
+    return true;
+}
