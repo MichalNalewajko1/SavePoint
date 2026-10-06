@@ -1,6 +1,7 @@
 #include "ScanSummary.h"
 #include "DirectoryScanner.h"
 #include "FileCopier.h"
+#include "BackupInfoWriter.h"
 
 #include <iostream>
 #include <string>
@@ -54,56 +55,6 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
         }
         ++backupNumber;
     }
-}
-
-bool writeBackupInfo(const filesystem::path &sourcePath, const filesystem::path &backupVersionPath, const ScanSummary &summary)
-{
-    filesystem::path infoPath = backupVersionPath / "backup_info.tmp";
-    ofstream infoFile(infoPath);
-
-    if (!infoFile)
-    {
-        cout << "Nie mozna otworzyc pliku opisu kopii: " << infoPath.string() << "\n";
-        return false;
-    }
-
-    infoFile << "SavePoint - opis kopii\n";
-    infoFile << "Zrodlo: " << sourcePath.string() << "\n";
-    infoFile << "Liczba folderow: " << summary.directories.size() << "\n";
-    infoFile << "Liczba plikow: " << summary.files.size() << "\n";
-    infoFile << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
-    infoFile << "Lista folderow:\n";
-    for (const filesystem::path &directoryPath : summary.directories)
-    {
-        infoFile << directoryPath.string() << "\n";
-    }
-    infoFile << "Lista plikow:\n";
-    for (const filesystem::path &filePath : summary.files)
-    {
-        infoFile << filePath.string() << "\n";
-    }
-
-    infoFile.close();
-
-    if (!infoFile)
-    {
-        cout << "Nie udalo sie zapisac opisu kopii: "
-             << infoPath.string() << "\n";
-        return false;
-    }
-
-    filesystem::path finalInfoPath = backupVersionPath / "backup_info.txt";
-
-    error_code errorCode;
-
-    filesystem::rename(infoPath, finalInfoPath, errorCode);
-
-    if (errorCode)
-    {
-        cout << "Nie mozna przeniesc pliku opisu kopii: " << errorCode.message() << "\n";
-        return false;
-    }
-    return true;
 }
 
 int createBackup()
@@ -215,8 +166,7 @@ int createBackup()
     }
     FileCopier copier(sourcePath, backupDataPath);
 
-    bool directoriesCreated =
-        copier.createDirectories(summary.directories, errorCode);
+    bool directoriesCreated = copier.createDirectories(summary.directories, errorCode);
 
     if (!directoriesCreated)
     {
@@ -231,8 +181,9 @@ int createBackup()
     {
         return 1;
     }
-    bool infoSaved = writeBackupInfo(sourcePath, backupVersionPath, summary);
+    BackupInfoWriter infoWriter(backupVersionPath);
 
+    bool infoSaved = infoWriter.write(sourcePath, summary);
     if (!infoSaved)
     {
         return 1;
@@ -495,8 +446,7 @@ int restoreBackup()
     cout << "Laczny rozmiar plikow: " << restoreSummary.totalSize << " B\n";
     FileCopier copier(backupDataPath, restorePath);
 
-    bool directoriesCreated =
-        copier.createDirectories(restoreSummary.directories, errorCode);
+    bool directoriesCreated = copier.createDirectories(restoreSummary.directories, errorCode);
 
     if (!directoriesCreated)
     {
