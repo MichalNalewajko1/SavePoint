@@ -14,7 +14,7 @@ int main()
 
     if (errorCode)
     {
-        cout << "Nie mozna ustalic biezacego folderu: "<< errorCode.message() << "\n";
+        cout << "Nie mozna ustalic biezacego folderu: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -22,7 +22,7 @@ int main()
 
     if (errorCode)
     {
-        cout << "Blad podczas sprawdzania folderow: "<< errorCode.message() << "\n";
+        cout << "Blad podczas sprawdzania folderow: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -33,6 +33,30 @@ int main()
     }
 
     cout << "TEST OK: folder zrodlowy zostal odrzucony jako folder kopii.\n";
+
+    filesystem::path backupPath = sourcePath.parent_path();
+
+    if (backupPath == sourcePath)
+    {
+        cout << "Nie mozna przygotowac testu: biezacy folder nie ma innego folderu nadrzednego.\n";
+        return 1;
+    }
+
+    bool parentOutsideSource = isBackupOutsideSource(sourcePath, backupPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Blad podczas sprawdzania folderu nadrzednego: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!parentOutsideSource)
+    {
+        cout << "TEST NIEUDANY: odrzucono folder nadrzedny wobec zrodla.\n";
+        return 1;
+    }
+
+    cout << "TEST OK: zaakceptowano folder nadrzedny wobec zrodla.\n";
 
     return 0;
 }
