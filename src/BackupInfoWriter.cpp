@@ -46,8 +46,7 @@ bool BackupInfoWriter::write(const filesystem::path &sourcePath, const ScanSumma
 
     if (!infoFile)
     {
-        cout << "Nie udalo sie zapisac opisu kopii: "
-             << infoPath.string() << "\n";
+        cout << "Nie udalo sie zapisac opisu kopii: "<< infoPath.string() << "\n";
         return false;
     }
 
