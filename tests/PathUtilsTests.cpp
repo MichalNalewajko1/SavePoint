@@ -46,7 +46,7 @@ int main()
 
     if (errorCode)
     {
-        cout << "Blad podczas sprawdzania folderu nadrzednego: "<< errorCode.message() << "\n";
+        cout << "Blad podczas sprawdzania folderu nadrzednego: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -57,6 +57,25 @@ int main()
     }
 
     cout << "TEST OK: zaakceptowano folder nadrzedny wobec zrodla.\n";
+
+    filesystem::path testSourcePath = sourcePath.parent_path();
+    filesystem::path testBackupPath = sourcePath;
+
+    bool childOutsideSource = isBackupOutsideSource(testSourcePath, testBackupPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Blad podczas sprawdzania podfolderu: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (childOutsideSource)
+    {
+        cout << "TEST NIEUDANY: zaakceptowano podfolder zrodla jako cel kopii.\n";
+        return 1;
+    }
+
+    cout << "TEST OK: podfolder zrodla zostal odrzucony jako cel kopii.\n";
 
     return 0;
 }
