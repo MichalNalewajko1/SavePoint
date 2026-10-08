@@ -1,0 +1,27 @@
+name: SavePoint - build and tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v6
+
+      - name: Skonfiguruj projekt
+        run: cmake -S . -B build
+
+      - name: Zbuduj program i testy
+        run: cmake --build build --config Debug
+
+      - name: Uruchom testy
+        run: ctest --test-dir build -C Debug --output-on-failure --no-tests=error
