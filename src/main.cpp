@@ -50,8 +50,7 @@ int createBackup()
 
     if (errorCode)
     {
-        cout << "Nie mozna sprawdzic sciezki: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna sprawdzic sciezki: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -63,8 +62,7 @@ int createBackup()
     sourcePath = filesystem::canonical(sourcePath, errorCode);
     if (errorCode)
     {
-        cout << "Nie mozna ustalic sciezki zrodlowej: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna ustalic sciezki zrodlowej: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -92,24 +90,21 @@ int createBackup()
 
     if (errorCode)
     {
-        cout << "Nie mozna utworzyc folderu kopii zapasowej: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna utworzyc folderu kopii zapasowej: " << errorCode.message() << "\n";
         return 1;
     }
 
     backupPath = filesystem::canonical(backupPath, errorCode);
     if (errorCode)
     {
-        cout << "Nie mozna ustalic sciezki kopii zapasowej: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna ustalic sciezki kopii zapasowej: " << errorCode.message() << "\n";
         return 1;
     }
     bool backupOutsideSource = isBackupOutsideSource(sourcePath, backupPath, errorCode);
 
     if (errorCode)
     {
-        cout << "Nie mozna porownac folderow: "
-             << errorCode.message() << "\n";
+        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -257,8 +252,7 @@ int listBackups()
 
                 if (errorCode)
                 {
-                    cout << "Nie mozna sprawdzic obecnosci opisu: "
-                         << errorCode.message() << "\n";
+                    cout << "Nie mozna sprawdzic obecnosci opisu: " << errorCode.message() << "\n";
                     return 1;
                 }
 
@@ -270,8 +264,7 @@ int listBackups()
 
                     if (errorCode)
                     {
-                        cout << "Nie mozna sprawdzic typu pliku opisu: "
-                             << errorCode.message() << "\n";
+                        cout << "Nie mozna sprawdzic typu pliku opisu: " << errorCode.message() << "\n";
                         return 1;
                     }
                 }
@@ -445,8 +438,23 @@ int restoreBackup()
     return 0;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc == 2 && string(argv[1]) == "--help")
+    {
+        cout << "SavePoint - kopie zapasowe folderow\n\n";
+        cout << "Dostepne argumenty:\n";
+        cout << "  --help  Wyswietl pomoc\n\n";
+        cout << "Bez argumentow program uruchamia menu.\n";
+
+        return 0;
+    }
+
+    if (argc > 1)
+    {
+        cout << "Nieprawidlowe argumenty. Uzyj --help, aby zobaczyc pomoc.\n";
+        return 1;
+    }
     cout << "SavePoint uruchomiony!\n";
 
     while (true)
