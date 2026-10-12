@@ -444,10 +444,15 @@ int main(int argc, char *argv[])
     {
         cout << "SavePoint - kopie zapasowe folderow\n\n";
         cout << "Dostepne argumenty:\n";
+        cout << "  backup  Utworz kopie zapasowa - program zapyta o sciezki\n";
         cout << "  --help  Wyswietl pomoc\n\n";
         cout << "Bez argumentow program uruchamia menu.\n";
 
         return 0;
+    }
+    if (argc == 2 && string(argv[1]) == "backup")
+    {
+        return createBackup();
     }
 
     if (argc > 1)
