@@ -35,12 +35,8 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
     }
 }
 
-int createBackup()
+int createBackup(const string &folderPath, const string &backupFolderPath)
 {
-    string folderPath;
-
-    cout << "Podaj sciezke do folderu: ";
-    getline(cin, folderPath);
 
     filesystem::path sourcePath(folderPath);
 
@@ -80,10 +76,6 @@ int createBackup()
     cout << "Liczba folderow: " << summary.directories.size() << "\n";
     cout << "Liczba plikow: " << summary.files.size() << "\n";
     cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
-    string backupFolderPath;
-
-    cout << "Podaj sciezke do folderu kopii zapasowej: ";
-    getline(cin, backupFolderPath);
 
     filesystem::path backupPath(backupFolderPath);
     bool created = filesystem::create_directories(backupPath, errorCode);
@@ -165,6 +157,36 @@ int createBackup()
     cout << "\nKopiowanie plikow zakonczone.\n";
 
     return 0;
+}
+
+int createBackupInteractive()
+{
+    string folderPath;
+    string backupFolderPath;
+
+    cout << "Podaj sciezke do folderu: ";
+
+    if (!getline(cin, folderPath))
+    {
+        cout << "Nie mozna odczytac sciezki zrodlowej.\n";
+        return 1;
+    }
+
+    cout << "Podaj sciezke do folderu kopii zapasowej: ";
+
+    if (!getline(cin, backupFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki kopii.\n";
+        return 1;
+    }
+
+    if (folderPath.empty() || backupFolderPath.empty())
+    {
+        cout << "Sciezki nie moga byc puste.\n";
+        return 1;
+    }
+
+    return createBackup(folderPath, backupFolderPath);
 }
 
 int showBackupInfo()
@@ -452,7 +474,7 @@ int main(int argc, char *argv[])
     }
     if (argc == 2 && string(argv[1]) == "backup")
     {
-        return createBackup();
+        return createBackupInteractive();
     }
 
     if (argc > 1)
@@ -488,7 +510,7 @@ int main(int argc, char *argv[])
 
         if (choice == "1")
         {
-            result = createBackup();
+            result = createBackupInteractive();
         }
         else if (choice == "2")
         {
