@@ -343,17 +343,8 @@ int listBackupsInteractive()
     return listBackups(backupFolderPath);
 }
 
-int restoreBackup()
+int restoreBackup(const string &versionFolderPath, const string &restoreFolderPath)
 {
-    string versionFolderPath;
-
-    cout << "Podaj sciezke do folderu wersji kopii: ";
-
-    if (!getline(cin, versionFolderPath))
-    {
-        cout << "Nie mozna odczytac sciezki.\n";
-        return 1;
-    }
 
     if (versionFolderPath.empty())
     {
@@ -381,15 +372,6 @@ int restoreBackup()
     }
 
     cout << "\nFolder danych do przywrocenia: " << backupDataPath.string() << "\n";
-    string restoreFolderPath;
-
-    cout << "Podaj sciezke do folderu docelowego: ";
-
-    if (!getline(cin, restoreFolderPath))
-    {
-        cout << "Nie mozna odczytac sciezki docelowej.\n";
-        return 1;
-    }
 
     if (restoreFolderPath.empty())
     {
@@ -487,6 +469,30 @@ int restoreBackup()
     return 0;
 }
 
+int restoreBackupInteractive()
+{
+    string versionFolderPath;
+    string restoreFolderPath;
+
+    cout << "Podaj sciezke do folderu wersji kopii: ";
+
+    if (!getline(cin, versionFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki wersji kopii.\n";
+        return 1;
+    }
+
+    cout << "Podaj sciezke do folderu docelowego: ";
+
+    if (!getline(cin, restoreFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki docelowej.\n";
+        return 1;
+    }
+
+    return restoreBackup(versionFolderPath, restoreFolderPath);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc == 2 && string(argv[1]) == "--help")
@@ -572,7 +578,7 @@ int main(int argc, char *argv[])
         }
         else if (choice == "4")
         {
-            result = restoreBackup();
+            result = restoreBackupInteractive();
         }
         else
         {
