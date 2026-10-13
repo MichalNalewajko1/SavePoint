@@ -38,6 +38,12 @@ filesystem::path createBackupVersion(const filesystem::path &backupPath, error_c
 int createBackup(const string &folderPath, const string &backupFolderPath)
 {
 
+    if (folderPath.empty() || backupFolderPath.empty())
+    {
+        cout << "Sciezki nie moga byc puste.\n";
+        return 1;
+    }
+
     filesystem::path sourcePath(folderPath);
 
     error_code errorCode;
@@ -177,12 +183,6 @@ int createBackupInteractive()
     if (!getline(cin, backupFolderPath))
     {
         cout << "Nie mozna odczytac sciezki kopii.\n";
-        return 1;
-    }
-
-    if (folderPath.empty() || backupFolderPath.empty())
-    {
-        cout << "Sciezki nie moga byc puste.\n";
         return 1;
     }
 
@@ -467,6 +467,7 @@ int main(int argc, char *argv[])
         cout << "SavePoint - kopie zapasowe folderow\n\n";
         cout << "Dostepne argumenty:\n";
         cout << "  backup  Utworz kopie zapasowa - program zapyta o sciezki\n";
+        cout << "  backup <zrodlo> <folder_kopii>  Utworz kopie z podanych sciezek\n";
         cout << "  --help  Wyswietl pomoc\n\n";
         cout << "Bez argumentow program uruchamia menu.\n";
 
@@ -475,6 +476,13 @@ int main(int argc, char *argv[])
     if (argc == 2 && string(argv[1]) == "backup")
     {
         return createBackupInteractive();
+    }
+    if (argc == 4 && string(argv[1]) == "backup")
+    {
+        string folderPath = argv[2];
+        string backupFolderPath = argv[3];
+
+        return createBackup(folderPath, backupFolderPath);
     }
 
     if (argc > 1)
