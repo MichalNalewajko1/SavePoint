@@ -189,12 +189,13 @@ int createBackupInteractive()
     return createBackup(folderPath, backupFolderPath);
 }
 
-int showBackupInfo()
+int showBackupInfo(const string &versionFolderPath)
 {
-    string versionFolderPath;
-
-    cout << "Podaj sciezke do folderu wersji kopii: ";
-    getline(cin, versionFolderPath);
+    if (versionFolderPath.empty())
+    {
+        cout << "Sciezka wersji kopii nie moze byc pusta.\n";
+        return 1;
+    }
 
     filesystem::path backupVersionPath(versionFolderPath);
     filesystem::path infoPath = backupVersionPath / "backup_info.txt";
@@ -223,6 +224,21 @@ int showBackupInfo()
     }
 
     return 0;
+}
+
+int showBackupInfoInteractive()
+{
+    string versionFolderPath;
+
+    cout << "Podaj sciezke do folderu wersji kopii: ";
+
+    if (!getline(cin, versionFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki wersji kopii.\n";
+        return 1;
+    }
+
+    return showBackupInfo(versionFolderPath);
 }
 
 int listBackups()
@@ -484,6 +500,13 @@ int main(int argc, char *argv[])
 
         return createBackup(folderPath, backupFolderPath);
     }
+    
+    if (argc == 3 && string(argv[1]) == "info")
+    {
+        string versionFolderPath = argv[2];
+
+        return showBackupInfo(versionFolderPath);
+    }
 
     if (argc > 1)
     {
@@ -522,7 +545,7 @@ int main(int argc, char *argv[])
         }
         else if (choice == "2")
         {
-            result = showBackupInfo();
+            result = showBackupInfoInteractive();
         }
         else if (choice == "3")
         {
