@@ -241,15 +241,11 @@ int showBackupInfoInteractive()
     return showBackupInfo(versionFolderPath);
 }
 
-int listBackups()
+int listBackups(const string &backupFolderPath)
 {
-    string backupFolderPath;
-
-    cout << "Podaj sciezke do glownego folderu kopii: ";
-
-    if (!getline(cin, backupFolderPath))
+    if (backupFolderPath.empty())
     {
-        cout << "Nie mozna odczytac sciezki.\n";
+        cout << "Sciezka folderu kopii nie moze byc pusta.\n";
         return 1;
     }
 
@@ -330,6 +326,21 @@ int listBackups()
     }
 
     return 0;
+}
+
+int listBackupsInteractive()
+{
+    string backupFolderPath;
+
+    cout << "Podaj sciezke do glownego folderu kopii: ";
+
+    if (!getline(cin, backupFolderPath))
+    {
+        cout << "Nie mozna odczytac sciezki folderu kopii.\n";
+        return 1;
+    }
+
+    return listBackups(backupFolderPath);
 }
 
 int restoreBackup()
@@ -482,6 +493,7 @@ int main(int argc, char *argv[])
     {
         cout << "SavePoint - kopie zapasowe folderow\n\n";
         cout << "Dostepne argumenty:\n";
+        cout << "  info <folder_wersji>  Wyswietl opis wskazanej kopii\n";
         cout << "  backup  Utworz kopie zapasowa - program zapyta o sciezki\n";
         cout << "  backup <zrodlo> <folder_kopii>  Utworz kopie z podanych sciezek\n";
         cout << "  --help  Wyswietl pomoc\n\n";
@@ -500,12 +512,19 @@ int main(int argc, char *argv[])
 
         return createBackup(folderPath, backupFolderPath);
     }
-    
+
     if (argc == 3 && string(argv[1]) == "info")
     {
         string versionFolderPath = argv[2];
 
         return showBackupInfo(versionFolderPath);
+    }
+
+    if (argc == 3 && string(argv[1]) == "list")
+    {
+        string backupFolderPath = argv[2];
+
+        return listBackups(backupFolderPath);
     }
 
     if (argc > 1)
@@ -549,7 +568,7 @@ int main(int argc, char *argv[])
         }
         else if (choice == "3")
         {
-            result = listBackups();
+            result = listBackupsInteractive();
         }
         else if (choice == "4")
         {
