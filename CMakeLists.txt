@@ -15,3 +15,13 @@ target_include_directories(PathUtilsTests PRIVATE src)
 target_compile_features(PathUtilsTests PRIVATE cxx_std_20)
 
 add_test(NAME PathUtilsTests COMMAND PathUtilsTests)
+
+add_test(
+    NAME RestoreMissingDestination
+    COMMAND SavePoint restore test_backup
+)
+
+set_tests_properties(RestoreMissingDestination PROPERTIES
+    WILL_FAIL TRUE
+    TIMEOUT 5
+)
