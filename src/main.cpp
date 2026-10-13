@@ -500,6 +500,8 @@ int main(int argc, char *argv[])
         cout << "SavePoint - kopie zapasowe folderow\n\n";
         cout << "Dostepne argumenty:\n";
         cout << "  info <folder_wersji>  Wyswietl opis wskazanej kopii\n";
+        cout << "  restore <folder_wersji> <cel>  Przywroc kopie do pustego folderu\n";
+        cout << "  list <folder_kopii>  Wyswietl liste kopii\n";
         cout << "  backup  Utworz kopie zapasowa - program zapyta o sciezki\n";
         cout << "  backup <zrodlo> <folder_kopii>  Utworz kopie z podanych sciezek\n";
         cout << "  --help  Wyswietl pomoc\n\n";
@@ -531,6 +533,13 @@ int main(int argc, char *argv[])
         string backupFolderPath = argv[2];
 
         return listBackups(backupFolderPath);
+    }
+    if (argc == 4 && string(argv[1]) == "restore")
+    {
+        string versionFolderPath = argv[2];
+        string restoreFolderPath = argv[3];
+
+        return restoreBackup(versionFolderPath, restoreFolderPath);
     }
 
     if (argc > 1)
