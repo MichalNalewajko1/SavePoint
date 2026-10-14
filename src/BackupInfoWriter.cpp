@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <system_error>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -18,11 +20,30 @@ bool BackupInfoWriter::write(const filesystem::path &sourcePath, const ScanSumma
 
     if (!infoFile)
     {
-        cout << "Nie mozna otworzyc pliku opisu kopii: "<< infoPath.string() << "\n";
+        cout << "Nie mozna otworzyc pliku opisu kopii: " << infoPath.string() << "\n";
+        return false;
+    }
+
+    std::time_t currentTime = std::time(nullptr);
+
+    if (currentTime == -1)
+    {
+        cout << "Nie mozna odczytac aktualnego czasu.\n";
+        return false;
+    }
+
+    const std::tm *localTime = std::localtime(&currentTime);
+
+    if (localTime == nullptr)
+    {
+        cout << "Nie mozna przeliczyc czasu na date lokalna.\n";
         return false;
     }
 
     infoFile << "SavePoint - opis kopii\n";
+    infoFile << "Data kopii (czas lokalny): "
+             << std::put_time(localTime, "%Y-%m-%d %H:%M:%S")
+             << "\n";
     infoFile << "Zrodlo: " << sourcePath.string() << "\n";
     infoFile << "Liczba folderow: " << summary.directories.size() << "\n";
     infoFile << "Liczba plikow: " << summary.files.size() << "\n";
@@ -46,7 +67,7 @@ bool BackupInfoWriter::write(const filesystem::path &sourcePath, const ScanSumma
 
     if (!infoFile)
     {
-        cout << "Nie udalo sie zapisac opisu kopii: "<< infoPath.string() << "\n";
+        cout << "Nie udalo sie zapisac opisu kopii: " << infoPath.string() << "\n";
         return false;
     }
 
@@ -58,7 +79,7 @@ bool BackupInfoWriter::write(const filesystem::path &sourcePath, const ScanSumma
 
     if (errorCode)
     {
-        cout << "Nie mozna przeniesc pliku opisu kopii: "<< errorCode.message() << "\n";
+        cout << "Nie mozna przeniesc pliku opisu kopii: " << errorCode.message() << "\n";
         return false;
     }
 
