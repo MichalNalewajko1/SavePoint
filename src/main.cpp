@@ -241,6 +241,36 @@ int showBackupInfoInteractive()
     return showBackupInfo(versionFolderPath);
 }
 
+bool isBackupVersionName(const string &folderName)
+{
+    const string prefix = "backup_";
+
+    if (!folderName.starts_with(prefix))
+    {
+        return false;
+    }
+
+    if (folderName.size() <= prefix.size())
+    {
+        return false;
+    }
+
+    if (folderName[prefix.size()] == '0')
+    {
+        return false;
+    }
+
+    for (size_t i = prefix.size(); i < folderName.size(); ++i)
+    {
+        if (folderName[i] < '0' || folderName[i] > '9')
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int listBackups(const string &backupFolderPath)
 {
     if (backupFolderPath.empty())
@@ -278,7 +308,7 @@ int listBackups(const string &backupFolderPath)
         {
             string folderName = current->path().filename().string();
 
-            if (folderName.starts_with("backup_"))
+            if (isBackupVersionName(folderName))
             {
                 filesystem::path infoPath = current->path() / "backup_info.txt";
 
