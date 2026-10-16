@@ -11,8 +11,25 @@
 #include <cstdint>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
+
+struct BackupListEntry
+{
+    string folderName;
+    bool hasInfoFile = false;
+};
+
+bool compareBackupEntries(const BackupListEntry &left, const BackupListEntry &right)
+{
+    if (left.folderName.size() != right.folderName.size())
+    {
+        return left.folderName.size() < right.folderName.size();
+    }
+
+    return left.folderName < right.folderName;
+}
 
 filesystem::path createBackupVersion(const filesystem::path &backupPath, error_code &errorCode)
 {
@@ -292,6 +309,8 @@ int listBackups(const string &backupFolderPath)
 
     filesystem::directory_iterator end;
 
+    vector<BackupListEntry> backups;
+
     cout << "\nFoldery kopii:\n";
 
     while (current != end)
@@ -333,16 +352,8 @@ int listBackups(const string &backupFolderPath)
                     }
                 }
 
-                if (hasInfoFile)
-                {
-                    cout << "[Z OPISEM] ";
-                }
-                else
-                {
-                    cout << "[BRAK PLIKU OPISU] ";
-                }
+                backups.push_back({folderName, hasInfoFile});
 
-                cout << folderName << "\n";
             }
         }
 
@@ -353,6 +364,21 @@ int listBackups(const string &backupFolderPath)
             cout << "Blad podczas przegladania folderu: " << errorCode.message() << "\n";
             return 1;
         }
+    }
+    std::sort(backups.begin(), backups.end(), compareBackupEntries);
+
+    for (const BackupListEntry &backup : backups)
+    {
+        if (backup.hasInfoFile)
+        {
+            cout << "[Z OPISEM] ";
+        }
+        else
+        {
+            cout << "[BRAK PLIKU OPISU] ";
+        }
+
+        cout << backup.folderName << "\n";
     }
 
     return 0;
