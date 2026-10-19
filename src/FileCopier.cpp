@@ -1,6 +1,7 @@
 #include "FileCopier.h"
 
 #include <iostream>
+#include <cstddef>
 
 using namespace std;
 
@@ -11,6 +12,7 @@ FileCopier::FileCopier(const filesystem::path &source, const filesystem::path &d
 bool FileCopier::copy(const vector<filesystem::path> &files, error_code &errorCode) const
 {
     errorCode.clear();
+    std::size_t copiedFiles = 0;
 
     for (const filesystem::path &filePath : files)
     {
@@ -34,7 +36,9 @@ bool FileCopier::copy(const vector<filesystem::path> &files, error_code &errorCo
             return false;
         }
 
-        cout << "[SKOPIOWANO] " << filePath.string() << "\n";
+        ++copiedFiles;
+
+        std::cout << "[SKOPIOWANO "<< copiedFiles << "/" << files.size()<< "] " << filePath.string() << "\n";
         cout << "Zrodlo: " << sourceFilePath.string() << "\n";
         cout << "Cel: " << destinationFilePath.string() << "\n";
     }
@@ -54,7 +58,7 @@ bool FileCopier::createDirectories(const vector<filesystem::path> &directories, 
 
         if (errorCode)
         {
-            cout << "Nie mozna utworzyc folderu docelowego: "<< errorCode.message() << "\n";
+            cout << "Nie mozna utworzyc folderu docelowego: " << errorCode.message() << "\n";
             return false;
         }
     }

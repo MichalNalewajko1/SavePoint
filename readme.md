@@ -1,79 +1,74 @@
 # SavePoint
 
-Aplikacja konsolowa napisana w C++20 do tworzenia i przywracania
-lokalnych kopii zapasowych folderów.
+A console application written in C++20 for creating and restoring
+local folder backups.
 
-Projekt rozwijam w ramach nauki C++, pracy z systemem plików,
-programowania obiektowego i testowania oprogramowania.
+I am developing this project as part of learning C++, working with
+the file system, object-oriented programming, and software testing.
 
-## Funkcje
+## Features
 
-- Tworzenie kolejnych wersji kopii: backup_1, backup_2 itd.
-- Zachowywanie struktury podfolderów, w tym pustych folderów.
-- Pomijanie folderów `.git` i `build` podczas tworzenia kopii.
-- Zapisywanie opisu kopii z listą plików, folderów i łącznym rozmiarem.
-- Wyświetlanie dostępnych wersji kopii i ich opisów.
-- Przywracanie danych do pustego folderu.
-- Odrzucanie celu kopii znajdującego się wewnątrz źródła
-  lub będącego tym samym folderem.
+- Creating successive backup versions: backup_1, backup_2, etc.
+- Preserving the subfolder structure, including empty folders.
+- Skipping `.git` and `build` folders when creating a backup.
+- Saving a backup description with a list of files, folders, and total size.
+- Displaying available backup versions and their descriptions.
+- Restoring data to an empty folder.
+- Rejecting a backup destination located inside the source
+  or being the same folder.
 
-## Budowanie na Windows z MinGW
+## Building on Windows with MinGW
 
-Wymagane narzędzia:
+Required tools:
 
-- kompilator g++ obsługujący C++20;
+- a g++ compiler supporting C++20;
 - mingw32-make;
 - CMake.
 
-Polecenia wykonuj w głównym folderze projektu:
+Run the commands in the project root folder:
 
 ```powershell
 cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 
-Uruchomienie aplikacji:
+Running the application:
 
 ```powershell
 .\build\SavePoint.exe
 ```
 
-W menu można wybrać tworzenie kopii, wyświetlenie opisu,
-wyświetlenie listy kopii lub przywracanie danych.
+The menu allows you to create a backup, display its description,
+display the list of backups, or restore data.
 
-## Uruchamianie testów
+## Running tests
 
-Po zbudowaniu projektu wykonaj:
+After building the project, run:
 
 ```powershell
 ctest --test-dir build --output-on-failure
 ```
 
-Program `PathUtilsTests` sprawdza położenie folderu kopii
-względem folderu źródłowego:
+The `PathUtilsTests` program checks the location of the backup folder
+relative to the source folder:
 
-- odrzucenie tego samego folderu;
-- zaakceptowanie folderu nadrzędnego;
-- odrzucenie podfolderu źródła.
+- rejecting the same folder;
+- accepting the parent folder;
+- rejecting a subfolder of the source.
 
-## Automatyczne sprawdzanie
+## Automated checks
 
-GitHub Actions buduje projekt i uruchamia testy na Windows
-po wysłaniu zmian do gałęzi `main` oraz przy pull requestach
-kierowanych do tej gałęzi.
+GitHub Actions builds the project and runs tests on Windows
+when changes are pushed to the `main` branch and for pull requests
+targeting this branch.
 
-Konfiguracja znajduje się w `.github/workflows/build.yml`.
+The configuration is located in `.github/workflows/build.yml`.
 
-## Organizacja kodu
+## Code organization
 
-- `DirectoryScanner` — przeglądanie folderów i zbieranie informacji.
-- `ScanSummary` — wynik skanowania: pliki, foldery i łączny rozmiar.
-- `FileCopier` — tworzenie folderów docelowych i kopiowanie plików.
-- `BackupInfoWriter` — zapisywanie opisu kopii.
-- `PathUtils` — sprawdzanie położenia folderów.
-- `main.cpp` — menu i obsługa operacji wybranych przez użytkownika.
-
-## Architektura
-
-Diagram komponentów, przepływy backupu i restore oraz układ danych kopii
-znajdują się w pliku [ARCHITECTURE.md](ARCHITECTURE.md).
+- `DirectoryScanner` — scanning folders and collecting information.
+- `ScanSummary` — scan result: files, folders, and total size.
+- `FileCopier` — creating destination folders and copying files.
+- `BackupInfoWriter` — saving the backup description.
+- `PathUtils` — checking folder locations.
+- `main.cpp` — menu and handling user-selected operations.
