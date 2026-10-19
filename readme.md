@@ -72,3 +72,8 @@ Konfiguracja znajduje się w `.github/workflows/build.yml`.
 - `BackupInfoWriter` — zapisywanie opisu kopii.
 - `PathUtils` — sprawdzanie położenia folderów.
 - `main.cpp` — menu i obsługa operacji wybranych przez użytkownika.
+
+## Architektura
+
+Diagram komponentów, przepływy backupu i restore oraz układ danych kopii
+znajdują się w pliku [ARCHITECTURE.md](ARCHITECTURE.md).

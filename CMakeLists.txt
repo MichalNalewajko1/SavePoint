@@ -38,3 +38,16 @@ set_tests_properties(
     RestoreMissingInfo
     PROPERTIES TIMEOUT 10
 )
+
+add_test(
+    NAME BackupAndRestore
+    COMMAND "${CMAKE_COMMAND}"
+        "-DSAVEPOINT_EXE=$<TARGET_FILE:SavePoint>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/BackupAndRestore.cmake"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+set_tests_properties(
+    BackupAndRestore
+    PROPERTIES TIMEOUT 15
+)
