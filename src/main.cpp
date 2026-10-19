@@ -353,7 +353,6 @@ int listBackups(const string &backupFolderPath)
                 }
 
                 backups.push_back({folderName, hasInfoFile});
-
             }
         }
 
@@ -412,6 +411,36 @@ int restoreBackup(const string &versionFolderPath, const string &restoreFolderPa
     filesystem::path backupDataPath = backupVersionPath / "data";
 
     error_code errorCode;
+
+    filesystem::path infoPath = backupVersionPath / "backup_info.txt";
+
+    bool infoExists = filesystem::exists(infoPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna sprawdzic obecnosci opisu kopii: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!infoExists)
+    {
+        cout << "Brak pliku backup_info.txt. Nie mozna przywrocic tej kopii.\n";
+        return 1;
+    }
+
+    bool hasInfoFile = filesystem::is_regular_file(infoPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna sprawdzic typu pliku opisu kopii: "<< errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!hasInfoFile)
+    {
+        cout << "Sciezka backup_info.txt nie wskazuje zwyklego pliku.\n";
+        return 1;
+    }
 
     bool isDataDirectory = filesystem::is_directory(backupDataPath, errorCode);
 
