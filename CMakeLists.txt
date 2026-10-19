@@ -25,3 +25,16 @@ set_tests_properties(RestoreMissingDestination PROPERTIES
     WILL_FAIL TRUE
     TIMEOUT 5
 )
+
+add_test(
+    NAME RestoreMissingInfo
+    COMMAND "${CMAKE_COMMAND}"
+        "-DSAVEPOINT_EXE=$<TARGET_FILE:SavePoint>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/RestoreMissingInfo.cmake"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+set_tests_properties(
+    RestoreMissingInfo
+    PROPERTIES TIMEOUT 10
+)
