@@ -51,3 +51,16 @@ set_tests_properties(
     BackupAndRestore
     PROPERTIES TIMEOUT 15
 )
+
+add_test(
+    NAME RestoreNonEmptyDestination
+    COMMAND "${CMAKE_COMMAND}"
+        "-DSAVEPOINT_EXE=$<TARGET_FILE:SavePoint>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/RestoreNonEmptyDestination.cmake"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+set_tests_properties(
+    RestoreNonEmptyDestination
+    PROPERTIES TIMEOUT 15
+)
