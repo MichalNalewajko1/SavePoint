@@ -41,9 +41,7 @@ bool BackupInfoWriter::write(const filesystem::path &sourcePath, const ScanSumma
     }
 
     infoFile << "SavePoint - opis kopii\n";
-    infoFile << "Data kopii (czas lokalny): "
-             << std::put_time(localTime, "%Y-%m-%d %H:%M:%S")
-             << "\n";
+    infoFile << "Data kopii (czas lokalny): "<< std::put_time(localTime, "%Y-%m-%d %H:%M:%S")<< "\n";
     infoFile << "Zrodlo: " << sourcePath.string() << "\n";
     infoFile << "Liczba folderow: " << summary.directories.size() << "\n";
     infoFile << "Liczba plikow: " << summary.files.size() << "\n";
