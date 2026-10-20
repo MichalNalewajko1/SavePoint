@@ -37,11 +37,18 @@ ScanSummary DirectoryScanner::scan(const filesystem::path &sourcePath, error_cod
     cout << "Zawartosc folderu:\n";
     while (current != end)
     {
-        filesystem::file_status entryStatus = current->status(errorCode);
-
+        filesystem::file_status entryStatus = current->symlink_status(errorCode);
         if (errorCode)
         {
             cout << "Nie mozna odczytac informacji o elemencie: " << errorCode.message() << "\n";
+            return summary;
+        }
+
+        if (filesystem::is_symlink(entryStatus))
+        {
+            cout << "Nieobslugiwane dowiazanie symboliczne: "<< current->path().string() << "\n";
+
+            errorCode = make_error_code(errc::operation_not_supported);
             return summary;
         }
         filesystem::path relativePath = current->path().lexically_relative(sourcePath);

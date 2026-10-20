@@ -101,6 +101,19 @@ int createBackup(const string &folderPath, const string &backupFolderPath)
     cout << "Laczny rozmiar plikow: " << summary.totalSize << " B\n";
 
     filesystem::path backupPath(backupFolderPath);
+    bool backupOutsideSource = isBackupOutsideSource(sourcePath, backupPath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!backupOutsideSource)
+    {
+        cout << "Folder kopii nie moze byc folderem zrodlowym ani jego podfolderem.\n";
+        return 1;
+    }
     bool created = filesystem::create_directories(backupPath, errorCode);
 
     if (errorCode)
@@ -113,19 +126,6 @@ int createBackup(const string &folderPath, const string &backupFolderPath)
     if (errorCode)
     {
         cout << "Nie mozna ustalic sciezki kopii zapasowej: " << errorCode.message() << "\n";
-        return 1;
-    }
-    bool backupOutsideSource = isBackupOutsideSource(sourcePath, backupPath, errorCode);
-
-    if (errorCode)
-    {
-        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
-        return 1;
-    }
-
-    if (!backupOutsideSource)
-    {
-        cout << "Folder kopii nie moze byc folderem zrodlowym ani jego podfolderem.\n";
         return 1;
     }
 
@@ -418,7 +418,7 @@ int restoreBackup(const string &versionFolderPath, const string &restoreFolderPa
 
     if (errorCode)
     {
-        cout << "Nie mozna sprawdzic obecnosci opisu kopii: "<< errorCode.message() << "\n";
+        cout << "Nie mozna sprawdzic obecnosci opisu kopii: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -432,7 +432,7 @@ int restoreBackup(const string &versionFolderPath, const string &restoreFolderPa
 
     if (errorCode)
     {
-        cout << "Nie mozna sprawdzic typu pliku opisu kopii: "<< errorCode.message() << "\n";
+        cout << "Nie mozna sprawdzic typu pliku opisu kopii: " << errorCode.message() << "\n";
         return 1;
     }
 
@@ -465,6 +465,19 @@ int restoreBackup(const string &versionFolderPath, const string &restoreFolderPa
     }
 
     filesystem::path restorePath(restoreFolderPath);
+    bool restoreOutsideBackup = isBackupOutsideSource(backupVersionPath, restorePath, errorCode);
+
+    if (errorCode)
+    {
+        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
+        return 1;
+    }
+
+    if (!restoreOutsideBackup)
+    {
+        cout << "Folder docelowy nie moze byc folderem wersji kopii ani jego podfolderem.\n";
+        return 1;
+    }
 
     filesystem::create_directories(restorePath, errorCode);
 
@@ -500,20 +513,6 @@ int restoreBackup(const string &versionFolderPath, const string &restoreFolderPa
     if (errorCode)
     {
         cout << "Nie mozna ustalic sciezki docelowej: " << errorCode.message() << "\n";
-        return 1;
-    }
-
-    bool restoreOutsideBackup = isBackupOutsideSource(backupVersionPath, restorePath, errorCode);
-
-    if (errorCode)
-    {
-        cout << "Nie mozna porownac folderow: " << errorCode.message() << "\n";
-        return 1;
-    }
-
-    if (!restoreOutsideBackup)
-    {
-        cout << "Folder docelowy nie moze byc folderem wersji kopii ani jego podfolderem.\n";
         return 1;
     }
 

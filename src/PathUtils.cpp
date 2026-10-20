@@ -4,20 +4,46 @@ using namespace std;
 
 bool isBackupOutsideSource(const filesystem::path &sourcePath, const filesystem::path &backupPath, error_code &errorCode)
 {
-    filesystem::path checkedPath = backupPath;
+    errorCode.clear();
+
+    filesystem::path checkedPath =
+        filesystem::absolute(backupPath, errorCode);
+
+    if (errorCode)
+    {
+        return false;
+    }
+
+    checkedPath = filesystem::weakly_canonical(checkedPath, errorCode);
+
+    if (errorCode)
+    {
+        return false;
+    }
 
     while (true)
     {
-        bool sameDirectory = filesystem::equivalent(checkedPath, sourcePath, errorCode);
+        bool pathExists = filesystem::exists(checkedPath, errorCode);
 
         if (errorCode)
         {
             return false;
         }
 
-        if (sameDirectory)
+        if (pathExists)
         {
-            return false;
+            bool sameDirectory =
+                filesystem::equivalent(checkedPath, sourcePath, errorCode);
+
+            if (errorCode)
+            {
+                return false;
+            }
+
+            if (sameDirectory)
+            {
+                return false;
+            }
         }
 
         filesystem::path parentPath = checkedPath.parent_path();
